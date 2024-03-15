@@ -103,12 +103,5 @@ namespace FlightDocs_System.Services.LoginLogout
         {
             await signInManager.SignOutAsync();
         }
-
-
-
-
-
-
-
     }
 }

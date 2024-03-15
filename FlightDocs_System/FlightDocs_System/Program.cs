@@ -1,6 +1,9 @@
 using FlightDocs_System.Data;
 using FlightDocs_System.Helpers;
-using FlightDocs_System.Services.Dashboard;
+using FlightDocs_System.Services.AllDocuments;
+using FlightDocs_System.Services.AllFights;
+using FlightDocs_System.Services.Configuration;
+using FlightDocs_System.Services.GroupPermission;
 using FlightDocs_System.Services.LoginLogout;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -61,6 +64,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 builder.Services.AddScoped<IAccountServices, AccountServices>();
 builder.Services.AddScoped<IFlightService, FlightService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<ITypeDocumentService, TypeDocumentService>();
+builder.Services.AddScoped<IGroupPermissionService, GroupPermissionService>();
+
 
 
 
