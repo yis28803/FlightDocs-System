@@ -1,11 +1,14 @@
-﻿using FlightDocs_System.Services.AllFights;
+﻿using FlightDocs_System.Helpers;
+using FlightDocs_System.Services.AllFights;
 using FlightDocs_System.ViewModels.AllFights;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightDocs_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = UserClasses.Role_Owner)]
     public class FlightController : ControllerBase
     {
         private readonly IFlightService _flightService;
@@ -16,6 +19,7 @@ namespace FlightDocs_System.Controllers
         }
 
         [HttpGet("getFlightsWithDocuments")]
+
         public async Task<IActionResult> GetFlightsWithDocuments()
         {
             var flightsWithDocuments = await _flightService.GetFlightsWithDocumentsAsync();
@@ -31,13 +35,6 @@ namespace FlightDocs_System.Controllers
                 return NotFound();
             }
             return Ok(flightWithDocuments);
-        }
-
-        [HttpGet("getFlightsWithDocumentSearch")]
-        public async Task<IActionResult> GetFlightsWithDocuments([FromQuery] string search)
-        {
-            var flightsWithDocuments = await _flightService.GetFlightsWithDocumentsAsync(search);
-            return Ok(flightsWithDocuments);
         }
         [HttpPost("addFlight")]
         public async Task<IActionResult> AddFlight([FromBody] AddFlightViewModel model)

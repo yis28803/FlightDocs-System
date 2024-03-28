@@ -12,7 +12,7 @@ namespace FlightDocs_System.Data
         public DbSet<GroupPermission_User>? GroupPermission_User { get; set; }
         public DbSet<TypeDocument>? TypeDocument { get; set; }
         public DbSet<TypeDocument_Group>? TypeDocument_Group { get; set; }
-
+        public DbSet<Document_Group>? Document_Group { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {
@@ -21,6 +21,17 @@ namespace FlightDocs_System.Data
         // Cấu hình database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Document_Group>()
+                .HasOne(s => s.GroupPermission)
+                .WithMany()
+               .HasForeignKey(s => s.ID_GroupPermission)
+               .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Document_Group>()
+                .HasOne(s => s.FlightDocument)
+                .WithMany()
+               .HasForeignKey(s => s.ID_Document)
+               .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<FlightDocument>()
                 .HasOne(s => s.Flight)
                 .WithMany()

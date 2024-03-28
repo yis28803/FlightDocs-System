@@ -31,6 +31,28 @@ namespace FlightDocs_System.Services.LoginLogout
             this.logger = logger;
             this.context = context;
         }
+        public async Task<IdentityResult> AssignOwnerRoleAsync(string currentUserId, string newOwnerId)
+        {
+            var currentUser = await userManager.FindByIdAsync(currentUserId);
+            var newOwner = await userManager.FindByIdAsync(newOwnerId);
+
+            // Kiểm tra xem tài khoản hiện tại có quyền Owner không
+            if (!await userManager.IsInRoleAsync(currentUser, UserClasses.Role_Owner))
+            {
+                // Trả về kết quả không thành công nếu không có quyền Owner
+                return IdentityResult.Failed(new IdentityError { Description = "Bạn không có quyền thực hiện thao tác này." });
+            }
+
+            // Gỡ bỏ quyền Owner từ tài khoản hiện tại
+            await userManager.RemoveFromRoleAsync(currentUser, UserClasses.Role_Owner);
+
+            // Gán quyền Owner cho tài khoản mới
+            await userManager.AddToRoleAsync(newOwner, UserClasses.Role_Owner);
+
+            // Trả về kết quả thành công
+            return IdentityResult.Success;
+        }
+
         public async Task<IdentityResult> SignUpAsync(SignUpAdmin model)
         {
             // Tạo một đối tượng ApplicationUser từ dữ liệu đăng ký
@@ -56,6 +78,37 @@ namespace FlightDocs_System.Services.LoginLogout
 
                 // Thêm người dùng vào vai trò Admin
                 await userManager.AddToRoleAsync(user, UserClasses.Role_Admin);
+            }
+
+            // Trả về kết quả của quá trình đăng ký
+            return result;
+        }
+
+        public async Task<IdentityResult> SignUpPilotAsync(SignUpAdmin model)
+        {
+            // Tạo một đối tượng ApplicationUser từ dữ liệu đăng ký
+            var user = new ApplicationUser
+            {
+                FullName = model.FullName,
+                Email = model.Email,
+                UserName = model.Email,
+                Phone = model.Phone
+            };
+
+            // Thực hiện đăng ký người dùng
+            var result = await userManager.CreateAsync(user, model.Password);
+
+            // Nếu đăng ký thành công
+            if (result.Succeeded)
+            {
+                // Kiểm tra và thêm vai trò Admin nếu chưa có
+                if (!await roleManager.RoleExistsAsync(UserClasses.Role_Pilot))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(UserClasses.Role_Pilot));
+                }
+
+                // Thêm người dùng vào vai trò Admin
+                await userManager.AddToRoleAsync(user, UserClasses.Role_Pilot);
             }
 
             // Trả về kết quả của quá trình đăng ký
@@ -103,5 +156,40 @@ namespace FlightDocs_System.Services.LoginLogout
         {
             await signInManager.SignOutAsync();
         }
+
+        public async Task<IdentityResult> DeleteUserAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                // Trả về kết quả không thành công nếu không tìm thấy người dùng
+                return IdentityResult.Failed(new IdentityError { Description = "Người dùng không tồn tại." });
+            }
+
+            // Xóa người dùng khỏi hệ thống
+            var result = await userManager.DeleteAsync(user);
+
+            return result;
+        }
+
+        public async Task<IdentityResult> UpdateUserAsync(string userId, UpdateUserModel model)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                // Trả về kết quả không thành công nếu không tìm thấy người dùng
+                return IdentityResult.Failed(new IdentityError { Description = "Người dùng không tồn tại." });
+            }
+
+            // Cập nhật thông tin người dùng
+            user.FullName = model.FullName;
+            user.Email = model.Email;
+            user.Phone = model.Phone;
+
+            var result = await userManager.UpdateAsync(user);
+
+            return result;
+        }
+
     }
 }

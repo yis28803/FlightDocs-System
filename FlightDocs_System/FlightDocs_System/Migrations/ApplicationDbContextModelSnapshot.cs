@@ -95,6 +95,29 @@ namespace FlightDocs_System.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("FlightDocs_System.Data.Document_Group", b =>
+                {
+                    b.Property<int>("ID_Document_Group")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_Document_Group"), 1L, 1);
+
+                    b.Property<int>("ID_Document")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ID_GroupPermission")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID_Document_Group");
+
+                    b.HasIndex("ID_Document");
+
+                    b.HasIndex("ID_GroupPermission");
+
+                    b.ToTable("Document_Group");
+                });
+
             modelBuilder.Entity("FlightDocs_System.Data.Flight", b =>
                 {
                     b.Property<int>("ID_Flight")
@@ -415,6 +438,25 @@ namespace FlightDocs_System.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("FlightDocs_System.Data.Document_Group", b =>
+                {
+                    b.HasOne("FlightDocs_System.Data.FlightDocument", "FlightDocument")
+                        .WithMany()
+                        .HasForeignKey("ID_Document")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FlightDocs_System.Data.GroupPermission", "GroupPermission")
+                        .WithMany()
+                        .HasForeignKey("ID_GroupPermission")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FlightDocument");
+
+                    b.Navigation("GroupPermission");
                 });
 
             modelBuilder.Entity("FlightDocs_System.Data.FlightDocument", b =>
